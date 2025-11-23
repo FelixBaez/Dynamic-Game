@@ -11,11 +11,10 @@ Class {
 }
 
 { #category : 'instance creation' }
-Dice class >> sixWithSeed: aSeed [
-	"Crea un dado de 6 caras, pero con un generador aleatorio fijado por una semilla (seed)"
-	^ self new
-		rng: (Random seed: aSeed);
-		yourself 
+Dice class >> six [ 
+	^ self new 
+	rng: Random;
+	yourself 
 ]
 
 { #category : 'accessing' }
