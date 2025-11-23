@@ -12,7 +12,7 @@ Class {
 }
 
 { #category : 'initialization' }
-Player class >> withName: aName color: aColor position: aPoint [ 
+Player class >> named: aName color: aColor position: aPoint [ 
 	"Crea e inicializa un nuevo jugador"
 	
 	^self new initializePlayer: aName color: aColor position: aPoint;
@@ -20,28 +20,29 @@ Player class >> withName: aName color: aColor position: aPoint [
 ]
 
 { #category : 'accessing' }
-Player >> eliminate [
-	"Modifica el atributo alive del objeto jugador a false"
-	
-	alive := false.
-]
-
-{ #category : 'accessing' }
-Player >> getColor [
+Player >> color [
 
 	^ color
 ]
 
 { #category : 'accessing' }
-Player >> getName [
-
-	^ name
+Player >> color: c [
+	color:= c.
 ]
 
 { #category : 'accessing' }
-Player >> getPosition [
+Player >> eliminate [
+	"Modifica el atributo alive del objeto Player a false y position a nil"
+	
+	position := nil.
+	alive := false.
+]
 
-	^ position
+{ #category : 'initialization' }
+Player >> initialize [
+	super initialize.
+	position:= nil.
+	alive:= true.
 ]
 
 { #category : 'initialization' }
@@ -61,7 +62,37 @@ Player >> isAlive [
 ]
 
 { #category : 'accessing' }
-Player >> setPosition: unPoint [
+Player >> name [
+
+	^ name
+]
+
+{ #category : 'accessing' }
+Player >> name: aString [
+	name:= aString.
+]
+
+{ #category : 'accessing' }
+Player >> position [
+
+	^ position
+]
+
+{ #category : 'accessing' }
+Player >> position: aPoint [
 	
-	position := unPoint
+	position := aPoint
+]
+
+{ #category : 'printing' }
+Player >> printOn: aStream [	
+	aStream
+		nextPutAll: 'Player (';
+		nextPutAll: name asString;
+		nextPutAll: ')';
+		nextPutAll: (alive ifTrue: [ 'alive' ] ifFalse: [ 'dead' ]).
+	position ifNotNil: [ 
+		aStream 
+			nextPutAll: 'at'; 
+			print: position ].
 ]
