@@ -20,22 +20,55 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
+DynamicGame >> currentPlayer [
+	|anyPlayer|
+	players isEmpty ifTrue: [ self error: 'No hay jugadores.' ].
+	(turnIndex < 1 or: [turnIndex > players size]) ifTrue: [self error: 'Turno fuera de rango'].
+	anyPlayer := players at: turnIndex  .
+	anyPlayer isAlive ifFalse: [ self error:'El jugador esta muerto. Se esperaba un jugador vivo.' ].
+	^ anyPlayer 
+]
+
+{ #category : 'initialization' }
 DynamicGame >> determineInitialOrderWithDice [
 	"Determinar orden inicial de jugadores: ordenarlos en la collection."
 	|pendientes ordenFinal |
 	pendientes:= players copy.
 	ordenFinal := OrderedCollection new.
 	ordenFinal size < players size whileTrue: [
-		|buckets|
+		|buckets empates|
 		buckets := Dictionary new.
 		pendientes do: [ :p ||k|
 			k:= dice roll.
 			(buckets at: k ifAbsentPut: [ OrderedCollection new ]) add: p].
-		buckets do: [ :b |
-			(buckets at: b ) size = 1
-			ifTrue: [ordenFinal add:[buckets at: b]. pendientes remove:[ buckets at: b]]]].
+		empates:= OrderedCollection new.
+		(buckets keys asSortedCollection) do: [ :k | |group|
+			group:= buckets at: k.
+			group size = 1 ifTrue: [ordenFinal add: group first]
+			ifFalse:[ empates addAll: group ]].
+		pendientes:= empates].
 	players := ordenFinal .
 ^self	
+]
+
+{ #category : 'as yet unclassified' }
+DynamicGame >> playOneTurn [
+	"Juega un turno del currentPlayer."
+	|p k turn |
+	isOver ifTrue: [ ^self ].
+	p:= self currentPlayer . "Llama al jugador vivo actual."
+	k:= dice roll . "tira el dado"
+	turn:= Turn number: turnNumber player: p roll: k. "Arma registro."
+	k timesRepeat: [ 
+		(p isAlive and: [ isOver not ]) ifTrue: [ 
+			self playAtomicStepFor: p ].
+		turn addStep: p position].
+	moves add: turn. "guarda registro en moves"
+	self advanceTurn."avanza un turno"
+	self checkEndCondition."chequa cond final"
+	^self
+	
+	
 ]
 
 { #category : 'initialization' }
