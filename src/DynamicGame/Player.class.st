@@ -11,14 +11,6 @@ Class {
 	#package : 'DynamicGame'
 }
 
-{ #category : 'initialization' }
-Player class >> named: aName color: aColor position: aPoint [ 
-	"Crea e inicializa un nuevo jugador"
-	
-	^self new initializePlayer: aName color: aColor position: aPoint;
-	yourself
-]
-
 { #category : 'accessing' }
 Player >> color [
 
@@ -27,7 +19,17 @@ Player >> color [
 
 { #category : 'accessing' }
 Player >> color: c [
+	c isString ifFalse: [ self error: 'Formato de color inválido' ].
 	color:= c.
+]
+
+{ #category : 'initialization' }
+Player >> configureWithName: aName color: aColor position: aPoint [
+	"Configura valor de atributos del jugador"
+	self name: aName.
+	self color: aColor. 
+	position := aPoint.
+	
 ]
 
 { #category : 'accessing' }
@@ -41,18 +43,7 @@ Player >> eliminate [
 { #category : 'initialization' }
 Player >> initialize [
 	super initialize.
-	position:= nil.
 	alive:= true.
-]
-
-{ #category : 'initialization' }
-Player >> initializePlayer: aName color: aColor position: aPoint [
-	"Inicializa Jugador"
-	name := aName.
-	color := aColor. 
-	position := aPoint.
-	alive := true.
-	
 ]
 
 { #category : 'accessing' }
@@ -69,6 +60,7 @@ Player >> name [
 
 { #category : 'accessing' }
 Player >> name: aString [
+	aString isString ifFalse: [ self error: 'Formato de nombre inválido: '].
 	name:= aString.
 ]
 
@@ -89,10 +81,10 @@ Player >> printOn: aStream [
 	aStream
 		nextPutAll: 'Player (';
 		nextPutAll: name asString;
-		nextPutAll: ')';
-		nextPutAll: (alive ifTrue: [ 'alive' ] ifFalse: [ 'dead' ]).
+		nextPutAll: ') ';
+		nextPutAll: (alive ifTrue: [ ' alive ' ] ifFalse: [ ' dead ' ]).
 	position ifNotNil: [ 
 		aStream 
-			nextPutAll: 'at'; 
+			nextPutAll: ' at '; 
 			print: position ].
 ]

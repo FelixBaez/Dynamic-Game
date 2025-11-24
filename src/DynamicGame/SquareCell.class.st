@@ -9,9 +9,10 @@ Class {
 }
 
 { #category : 'instance creation' }
-SquareCell class >> direction: aSymbol [
+SquareCell class >> direction: aDirection [
     "Create a cell with the given direction (#up #right #down #left)."
-    ^ self new direction: aSymbol
+    ^ self new initialize: aDirection;
+	yourself
 ]
 
 { #category : 'instance creation' }
@@ -46,6 +47,21 @@ SquareCell >> direction: aSymbol [
 	(#( #up #right #down #left ) includes: aSymbol) ifFalse: [
 		self error: 'Dirección inválida: ' , aSymbol printString ].
 	direction := aSymbol
+]
+
+{ #category : 'initialization' }
+SquareCell >> initialize: aDirection [
+	"Inicializa SquareCell"
+	self direction: aDirection.
+]
+
+{ #category : 'printing' }
+SquareCell >> printOn: aStream [
+	aStream 
+	nextPutAll: 'Direction: (';
+	nextPutAll: direction asString;
+	nextPutAll: ') '
+	
 ]
 
 { #category : 'geometry' }
