@@ -19,7 +19,7 @@ Class {
 	#package : 'DynamicGame'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'initialization' }
 DynamicGame >> currentPlayer [
 	|anyPlayer|
 	players isEmpty ifTrue: [ self error: 'No hay jugadores.' ].
@@ -52,6 +52,18 @@ DynamicGame >> determineInitialOrderWithDice [
 ]
 
 { #category : 'as yet unclassified' }
+DynamicGame >> playAtomicStepFor: aPlayer [
+	"Maneja tres casos: fuera de tabero, celda libre y empuje en cadena."
+	|from to|
+	from := aPlayer position. "Origen"
+	to := board nextPointFrom: from . "Destino"
+	(board isInside: to) ifTrue: [ aPlayer eliminate. eliminationOrder add: aPlayer. self checkEndCondition ]. "Si sale, eliminar"
+	(board isOccupied: to) ifTrue: [ self pushChainFrom: to . board movePlayer: aPlayer to: to. board rotateCellAt: from. ^self] "ocupado: empujar, mover y rotar"
+	ifFalse: [ board movePlayer: aPlayer to: to. board rotateCellAt: from. ^self ] "Sin colisión: mover A y rotar origen"
+	
+]
+
+{ #category : 'initialization' }
 DynamicGame >> playOneTurn [
 	"Juega un turno del currentPlayer."
 	|p k turn |
@@ -65,10 +77,27 @@ DynamicGame >> playOneTurn [
 		turn addStep: p position].
 	moves add: turn. "guarda registro en moves"
 	self advanceTurn."avanza un turno"
-	self checkEndCondition."chequa cond final"
+	self checkEndCondition."chequea cond final"
 	^self
 	
 	
+]
+
+{ #category : 'as yet unclassified' }
+DynamicGame >> pushChainFrom: aPoint [
+	|from to current pushed|
+	current:= aPoint .
+	[ board isOccupiedAt: current ] whileTrue: ["mientras current esta ocup"
+		pushed:= board occupantAt: current.
+		from:= current.
+		to:= board nextPointFrom: current.
+		(board isInside: to) ifFalse: [ pushed eliminated. eliminationOrder add: pushed . board rotateCellAt: from . ^self]."sale del tablero, se elimina"
+		(board isOccupiedAt: to) ifTrue: [ current:= to ]"sigue cadena"
+		ifFalse: [
+		board movePlayer: pushed to: to.
+		board rotateCellAt: from .
+		^self]].
+	^self
 ]
 
 { #category : 'initialization' }
