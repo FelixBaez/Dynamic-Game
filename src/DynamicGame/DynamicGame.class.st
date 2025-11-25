@@ -1,3 +1,25 @@
+"
+DynamicGame modela una partida completa del juego de tablero.
+
+Responsabilidades principales
+- Crear y mantener los objetos principales del modelo: Board, Players, Dice y Turn actual.
+- Gestionar el flujo de la partida:
+  - iniciar el juego,
+  - avanzar turnos,
+  - coordinar tiradas de dados y movimientos sobre el Board,
+  - aplicar las reglas particulares cuando un Player cae en una SquareCell.
+- Determinar condiciones de fin de juego (por ejemplo, jugador ganador, empate, etc.).
+
+Colaboradores
+- Board: conoce la estructura del tablero y las casillas.
+- Player: representa a cada participante del juego.
+- Dice: usado para obtener resultados aleatorios de movimiento u otras acciones.
+- Turn: encapsula la información de cada turno (quién juega, qué tirada se obtuvo, etc.).
+
+Notas de diseño
+- DynamicGame actúa como “fachada” del modelo: ofrece una interfaz de alto nivel para controlar y observar la partida sin exponer detalles internos.
+
+"
 Class {
 	#name : 'DynamicGame',
 	#superclass : 'Object',

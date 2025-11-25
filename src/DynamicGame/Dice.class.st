@@ -1,3 +1,12 @@
+"
+Dice representa uno o más dados utilizados por el juego.
+
+Responsabilidades principales
+- Mantener la cantidad de caras del dado (o dados) y, opcionalmente, su valor mínimo/máximo.
+- Proveer la operación de lanzamiento (roll) que devuelve un valor aleatorio válido.
+- Encapsular la fuente de aleatoriedad (Random) para facilitar pruebas y reproducibilidad si fuera necesario.
+
+"
 Class {
 	#name : 'Dice',
 	#superclass : 'Object',

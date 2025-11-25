@@ -1,3 +1,14 @@
+"
+Turn modela un turno individual dentro de la partida.
+
+Responsabilidades principales
+- Registrar la información relevante de un turno:
+  - qué Player está jugando,
+  - resultado de la tirada de Dice,
+  - posición de origen y de destino en el Board,
+  - eventos especiales ocurridos durante el turno
+- Proveer operaciones para acceder a esa información y, si corresponde, calcular algunos derivados (por ejemplo, desplazamiento total).
+"
 Class {
 	#name : 'Turn',
 	#superclass : 'Object',

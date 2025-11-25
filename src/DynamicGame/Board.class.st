@@ -1,3 +1,14 @@
+"
+Board modela el tablero de juego.
+
+Responsabilidades principales
+- Mantener la colección de casillas (SquareCell) que componen el tablero.
+- Conocer sus dimensiones lógicas (por ejemplo, cantidad de filas/columnas o cantidad total de casillas).
+- Proveer operaciones para acceder a una casilla dada una posición o índice.
+- Ofrecer servicios de alto nivel para el juego, por ejemplo:
+  - calcular la nueva casilla a partir de una posición y un desplazamiento,
+  - responder si una posición es válida dentro del tablero.
+"
 Class {
 	#name : 'Board',
 	#superclass : 'Object',

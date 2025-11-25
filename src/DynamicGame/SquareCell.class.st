@@ -1,3 +1,11 @@
+"
+SquareCell representa una casilla individual del Board.
+
+Responsabilidades principales
+- Mantener la información asociada a una casilla:
+  - direccion
+- Rotarse cuando lo pida el board.
+"
 Class {
 	#name : 'SquareCell',
 	#superclass : 'Object',

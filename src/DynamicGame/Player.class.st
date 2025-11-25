@@ -1,3 +1,14 @@
+"
+Player representa a un jugador o participante del juego.
+
+Responsabilidades principales
+- Mantener la información propia del jugador:
+  - nombre o identificador,
+  - posición actual en el Board,
+  - estado (activo, eliminado, etc.), u otras estadísticas.
+- Proveer operaciones para cambiar de posición o actualizar su estado de acuerdo a las reglas del juego.
+- Ofrecer una representación legible del jugador para depuración o interfaz de usuario.
+"
 Class {
 	#name : 'Player',
 	#superclass : 'Object',
