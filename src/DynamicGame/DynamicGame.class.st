@@ -19,6 +19,36 @@ Class {
 	#package : 'DynamicGame'
 }
 
+{ #category : 'as yet unclassified' }
+DynamicGame >> advanceTurn [
+	| startIndex |
+	isOver ifTrue: [ ^self ]. "si termino, fin"
+	players size == eliminationOrder size ifTrue:[ isOver := true. winner:= nil. ^self]. "Todos los jugadores eliminados, fin"
+	startIndex := turnIndex .
+	turnIndex := turnIndex + 1.
+	turnIndex > players  size ifTrue: [ 
+		turnIndex := 1  ].
+	(players at: turnIndex isAlive) whileFalse: [ 
+		turnIndex := turnIndex + 1.
+		turnIndex > players size ifTrue: [ turnIndex := 1 ].
+		turnIndex = startIndex ifTrue: [ isOver:= true. winner:= nil . ^self]
+		].
+^self
+]
+
+{ #category : 'as yet unclassified' }
+DynamicGame >> checkEndCondition [
+	|lastMove allAlivePlayers|
+	lastMove := moves isEmpty ifTrue:[ nil ] ifFalse:[ moves last].
+	allAlivePlayers:= self alivePlayers.
+	allAlivePlayers size = 1 ifTrue: [ isOver:= true. winner:= allAlivePlayers first. ^self ]. "Queda uno vivo. Gana"
+	(allAlivePlayers isEmpty and:[ lastMove notNil and: [ lastMove hasEliminations ]]) ifTrue: [ 
+		isOver:= true. winner:= allAlivePlayers eliminatedPlayers last. ^self ]."No quedan vivos"
+	turnNumber >= maxTurns ifTrue: [ isOver:= true.
+		winner:= (allAlivePlayers size = 1) ifTrue:[ allAlivePlayers first ] ifFalse:[ nil ]. ^self ]."Se alcanzó maxturns. Falta definir desempate."
+^self
+]
+
 { #category : 'initialization' }
 DynamicGame >> currentPlayer [
 	|anyPlayer|
@@ -92,11 +122,11 @@ DynamicGame >> pushChainFrom: aPoint [
 		from:= current.
 		to:= board nextPointFrom: current.
 		(board isInside: to) ifFalse: [ pushed eliminated. eliminationOrder add: pushed . board rotateCellAt: from . ^self]."sale del tablero, se elimina"
-		(board isOccupiedAt: to) ifTrue: [ current:= to ]"sigue cadena"
+		(board isOccupiedAt: to) ifTrue: [ 
+			current:= to ]"sigue cadena"
 		ifFalse: [
-		board movePlayer: pushed to: to.
-		board rotateCellAt: from .
-		^self]].
+			board movePlayer: pushed to: to. board rotateCellAt: from .^self]
+		].
 	^self
 ]
 
