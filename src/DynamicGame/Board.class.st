@@ -148,8 +148,11 @@ Board >> placePlayer: aPlayer at: aPoint [
 
 { #category : 'player management' }
 Board >> removePlayerAt: aPoint [
-	"Saca al jugador del diccionario"
-	occupants removeKey: aPoint ifAbsent: [  ]
+	"Saca al jugador occupants"
+	|pl|
+	(self isInside: aPoint) ifFalse: [ ^nil ].
+	pl := occupants removeKey: aPoint ifAbsent: [ ^nil ].
+	pl position: nil.
 	
 ]
 

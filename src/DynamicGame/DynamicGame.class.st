@@ -171,7 +171,7 @@ DynamicGame >> pushChainFrom: aPoint [
 		pushed:= board occupantAt: current.
 		from:= current.
 		to:= board nextPointFrom: current.
-		(board isInside: to) ifFalse: [ pushed eliminated. eliminationOrder add: pushed . board rotateCellAt: from . ^self]."sale del tablero, se elimina"
+		(board isInside: to) ifFalse: [ pushed eliminate. eliminationOrder add: pushed . board rotateCellAt: from . ^self]."sale del tablero, se elimina"
 		(board isOccupied: to) ifTrue: [ 
 			current:= to ]"sigue cadena"
 		ifFalse: [
