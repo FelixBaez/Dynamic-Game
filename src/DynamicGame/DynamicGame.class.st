@@ -41,7 +41,7 @@ Class {
 	#package : 'DynamicGame'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'running' }
 DynamicGame >> advanceTurn [
 	| startIndex |
 	isOver ifTrue: [ ^self ]. "si termino, fin"
@@ -58,7 +58,7 @@ DynamicGame >> advanceTurn [
 ^self
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'private' }
 DynamicGame >> checkEndCondition [
 	|lastMove allAlivePlayers|
 	lastMove := moves isEmpty ifTrue:[ nil ] ifFalse:[ moves last].
@@ -71,7 +71,7 @@ DynamicGame >> checkEndCondition [
 ^self
 ]
 
-{ #category : 'initialization' }
+{ #category : 'accessing' }
 DynamicGame >> currentPlayer [
 	|anyPlayer|
 	players isEmpty ifTrue: [ self error: 'No hay jugadores.' ].
@@ -81,7 +81,7 @@ DynamicGame >> currentPlayer [
 	^ anyPlayer 
 ]
 
-{ #category : 'initialization' }
+{ #category : 'private' }
 DynamicGame >> determineInitialOrderWithDice [
 	"Determinar orden inicial de jugadores: ordenarlos en la collection."
 	|pendientes ordenFinal |
@@ -103,7 +103,27 @@ DynamicGame >> determineInitialOrderWithDice [
 ^self	
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'private' }
+DynamicGame >> placeAllPlayersRandomly [
+	|validPositions|
+	board ifNil: [ self error:'No hay tablero.' ].
+	players ifEmpty: [ self error: 'No hay jugadores.' ].
+	players size >= board capacity ifFalse: [ 'El tablero es muy pequeño para albergar a todos los jugadores.' ].
+	"board resetOccupants."
+	validPositions := board allPointsInside asOrderedCollection .
+	players do: [ :pl ||index pos|
+		index:= rng nextInteger: validPositions size.
+		pos:= validPositions removeAt: index.
+		board placePlayer: pl at: pos ].
+	players do: [:pl | |pos|
+		validPositions ifEmpty: [ self error: 'No hay posiciones libres.' ].
+		pos:= validPositions removeFirst .
+		board placePlayer: pl at: pos . pl setPosition: pos].
+	^self
+	
+]
+
+{ #category : 'private' }
 DynamicGame >> playAtomicStepFor: aPlayer [
 	"Maneja tres casos: fuera de tabero, celda libre y empuje en cadena."
 	|from to|
@@ -115,7 +135,7 @@ DynamicGame >> playAtomicStepFor: aPlayer [
 	
 ]
 
-{ #category : 'initialization' }
+{ #category : 'running' }
 DynamicGame >> playOneTurn [
 	"Juega un turno del currentPlayer."
 	|p k turn |
@@ -135,7 +155,7 @@ DynamicGame >> playOneTurn [
 	
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'private' }
 DynamicGame >> pushChainFrom: aPoint [
 	|from to current pushed|
 	current:= aPoint .
@@ -152,7 +172,7 @@ DynamicGame >> pushChainFrom: aPoint [
 	^self
 ]
 
-{ #category : 'initialization' }
+{ #category : 'running' }
 DynamicGame >> startWith: someplayers on: aBoard seed: aSeed maxTurns: anInteger [
 	"Verificar si los datos tienen sentido."
 	((someplayers isEmpty) or:[maxTurns <= 0]) ifTrue: [self error:'Parámetros inválidos.'].
