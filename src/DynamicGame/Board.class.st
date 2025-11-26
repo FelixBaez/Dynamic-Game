@@ -114,8 +114,8 @@ Board >> isInside: aPoint [
 
 { #category : 'player management' }
 Board >> isOccupied: aPoint [
-	"Devuelve true si hay un jugador en el Point"
-	^ occupants includesKey: aPoint
+	(self isInside: aPoint ) ifFalse: [ ^ false ].
+	^ occupants includesKey: aPoint 
 ]
 
 { #category : 'player management' }

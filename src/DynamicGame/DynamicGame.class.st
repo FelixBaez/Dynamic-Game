@@ -167,12 +167,12 @@ DynamicGame >> playOneTurn [
 DynamicGame >> pushChainFrom: aPoint [
 	|from to current pushed|
 	current:= aPoint .
-	[ board isOccupiedAt: current ] whileTrue: ["mientras current esta ocup"
+	[ board isOccupied: current ] whileTrue: ["mientras current esta ocup"
 		pushed:= board occupantAt: current.
 		from:= current.
 		to:= board nextPointFrom: current.
 		(board isInside: to) ifFalse: [ pushed eliminated. eliminationOrder add: pushed . board rotateCellAt: from . ^self]."sale del tablero, se elimina"
-		(board isOccupiedAt: to) ifTrue: [ 
+		(board isOccupied: to) ifTrue: [ 
 			current:= to ]"sigue cadena"
 		ifFalse: [
 			board movePlayer: pushed to: to. board rotateCellAt: from .^self]
