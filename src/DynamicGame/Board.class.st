@@ -30,6 +30,16 @@ Board class >> rows: aRows cols: aCols [
 ]
 
 { #category : 'private - validation' }
+Board >> allPointsInside [
+	|pointsInside|	
+		pointsInside := OrderedCollection new.
+		1 to: self rows do: [ :r |
+			1 to: self cols do: [ :c |
+		pointsInside add: c@r ]].
+^pointsInside 
+]
+
+{ #category : 'private - validation' }
 Board >> assertDimensions [
 	"Verifica que las dimensiones respeten las reglas del juego"
 	((rows between: 5 and: 10) and: [cols between: 5 and: 10])
@@ -45,10 +55,20 @@ Board >> buildGrid [
 ]
 
 { #category : 'accessing' }
+Board >> capacity [
+^rows * cols 
+]
+
+{ #category : 'accessing' }
 Board >> cellAt: aPoint [
 	"Devuelve el objeto SquareCell en la posicion del Point"
 	^ cells at: aPoint
 	
+]
+
+{ #category : 'accessing' }
+Board >> cols [
+^cols
 ]
 
 { #category : 'initialization' }
@@ -139,6 +159,11 @@ Board >> rotateCellAt: aPoint [
 	(self cellAt: aPoint) rotateRight.
 	
 	
+]
+
+{ #category : 'accessing' }
+Board >> rows [ 
+^rows 
 ]
 
 { #category : 'testing' }

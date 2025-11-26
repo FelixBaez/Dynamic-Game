@@ -58,6 +58,14 @@ DynamicGame >> advanceTurn [
 ^self
 ]
 
+{ #category : 'as yet unclassified' }
+DynamicGame >> alivePlayers [
+	|alivePl|
+	players ifNil: [ ^ OrderedCollection new ].
+	alivePl:= players select: [:pl | pl isAlive ].
+^alivePl asOrderedCollection 
+]
+
 { #category : 'private' }
 DynamicGame >> checkEndCondition [
 	|lastMove allAlivePlayers|
@@ -172,6 +180,15 @@ DynamicGame >> pushChainFrom: aPoint [
 	^self
 ]
 
+{ #category : 'as yet unclassified' }
+DynamicGame >> randomPointInside [
+	|x y|
+	board ifNil: [ self error: 'No hay tablero.' ].
+	x:= rng nextInteger: board cols.
+	y:= rng nextInteger: board rows. 
+^x@y
+]
+
 { #category : 'running' }
 DynamicGame >> startWith: someplayers on: aBoard seed: aSeed maxTurns: anInteger [
 	"Verificar si los datos tienen sentido."
@@ -194,4 +211,10 @@ DynamicGame >> startWith: someplayers on: aBoard seed: aSeed maxTurns: anInteger
 	
 	
 
+]
+
+{ #category : 'accessing' }
+DynamicGame >> winner [
+	isOver ifFalse: [ ^ nil ].
+^winner
 ]
