@@ -58,7 +58,7 @@ DynamicGame >> advanceTurn [
 ^self
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'private' }
 DynamicGame >> alivePlayers [
 	|alivePl|
 	players ifNil: [ ^ OrderedCollection new ].
@@ -180,7 +180,7 @@ DynamicGame >> pushChainFrom: aPoint [
 	^self
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'private' }
 DynamicGame >> randomPointInside [
 	|x y|
 	board ifNil: [ self error: 'No hay tablero.' ].
