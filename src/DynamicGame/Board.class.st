@@ -102,6 +102,9 @@ Board >> initializeRows: aRows cols: aCols [
 { #category : 'testing' }
 Board >> isBorder: aPoint [
 	"Verifica si una posicion se encuentra en el borde del tablero"
+	
+	"Primero verifico si el Point se encuentra fuera del tablero"
+	(self isInside: aPoint) ifFalse: [ self error: 'Posición fuera del tablero: ', aPoint asString].
 	^ (aPoint x = 1) or: [ aPoint x = rows or: [ aPoint y = 1 or: [ aPoint y = cols ] ] ]
 	
 ]
@@ -114,7 +117,8 @@ Board >> isInside: aPoint [
 
 { #category : 'player management' }
 Board >> isOccupied: aPoint [
-	(self isInside: aPoint ) ifFalse: [ ^ false ].
+	"Devueve True si el point se encuentra con un jugador, caso contrario devuelve false"
+	(self isInside: aPoint ) ifFalse: [ self error: 'Posición fuera del tablero: ', aPoint asString].
 	^ occupants includesKey: aPoint 
 ]
 
@@ -136,6 +140,9 @@ Board >> nextPointFrom: aPoint [
 { #category : 'player management' }
 Board >> occupantAt: aPoint [
 	"Devuelve el jugador en el Point o nil si está vacío"
+	
+	"Verifico si el punto que le paso se encuentra dentro del tablero"
+	(self isInside: aPoint) ifFalse: [ self error: 'Posición fuera del tablero: ', aPoint asString]. 
 	^ occupants at: aPoint ifAbsent: [ nil ]
 ]
 
@@ -144,6 +151,53 @@ Board >> placePlayer: aPlayer at: aPoint [
 	"Guarda al jugador en el diccionario de posiciones y actualiza al jugador"
 	occupants at: aPoint put: aPlayer.
 	aPlayer position: aPoint.
+]
+
+{ #category : 'printing' }
+Board >> printOn: aStream [
+	"Imprime una cabecera y luego dibuja la grilla con flechas y jugadores"
+	| arrowSymbols |
+	
+	aStream 
+		nextPutAll: 'Board (';
+		print: rows;
+		nextPut: $x;
+		print: cols;
+		nextPut: $);
+		cr. 
+
+	arrowSymbols := Dictionary newFrom: { 
+		#up -> $^ . 
+		#down -> $v . 
+		#left -> $< . 
+		#right -> $> 
+	}.
+
+
+	1 to: rows do: [ :r | 
+		aStream tab. 
+		
+		1 to: cols do: [ :c | 
+			| point occupant cell symbol |
+			point := r @ c.
+			occupant := self occupantAt: point.
+			
+			aStream nextPut: $[. 
+			
+			occupant 
+				ifNotNil: [ 
+					"Si hay jugador, mostramos su inicial"
+					aStream nextPut: (occupant name first) ]
+				ifNil: [ 
+					"Si está vacío, mostramos la flecha de la celda"
+					cell := self cellAt: point.
+					symbol := arrowSymbols at: cell direction ifAbsent: [ $? ].
+					aStream nextPut: symbol ].
+			
+			aStream nextPut: $]. 
+		].
+		aStream cr. 
+	]
 ]
 
 { #category : 'player management' }

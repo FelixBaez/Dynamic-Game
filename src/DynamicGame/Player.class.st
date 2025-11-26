@@ -47,11 +47,10 @@ Player >> color: aValue [
 ]
 
 { #category : 'initialization' }
-Player >> configureWithName: aName color: aColor position: aPoint [
+Player >> configureWithName: aName color: aColor [
 	"Configura valor de atributos del jugador"
 	self name: aName.
 	self color: aColor. 
-	position := aPoint.
 	
 ]
 
