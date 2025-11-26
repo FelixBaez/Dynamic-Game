@@ -29,9 +29,21 @@ Player >> color [
 ]
 
 { #category : 'accessing' }
-Player >> color: c [
-	c isString ifFalse: [ self error: 'Formato de color inválido' ].
-	color:= c.
+Player >> color: aValue [
+    "Setea el color del jugador. Acepta: una instancia de Color (p.ej., Color red), un Symbol o String con el nombre de un color definido (p.ej., #red, 'blue'). Lanza error si no puede convertir."
+    | resolved |
+    (aValue isKindOf: Color) ifTrue: [ color := aValue. ^ self ].
+    (aValue isSymbol or: [ aValue isString ]) ifTrue: [
+        | sel |
+        sel := aValue asSymbol.
+        (Color class canUnderstand: sel)
+            ifTrue: [ 
+                resolved := Color perform: sel.
+                (resolved isKindOf: Color)
+                    ifTrue: [ color := resolved. ^ self ] ].
+        self error: 'Nombre de color inválido: ', aValue asString ].
+    self error: 'Se esperaba un Color o el nombre de un color (String/Symbol).'
+
 ]
 
 { #category : 'initialization' }
