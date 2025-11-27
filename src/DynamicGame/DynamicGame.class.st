@@ -83,8 +83,8 @@ DynamicGame >> checkEndCondition [
 DynamicGame >> currentPlayer [
 	|anyPlayer|
 	players isEmpty ifTrue: [ self error: 'No hay jugadores.' ].
-	(turnIndex < 1 or: [turnIndex > players size]) ifTrue: [self error: 'Turno fuera de rango'].
-	anyPlayer := players at: turnIndex  .
+	(turnNumber < 1 or: [turnNumber > players size]) ifTrue: [self error: 'Turno fuera de rango'].
+	anyPlayer := players at: turnNumber  .
 	anyPlayer isAlive ifFalse: [ self error:'El jugador esta muerto. Se esperaba un jugador vivo.' ].
 	^ anyPlayer 
 ]
@@ -113,20 +113,28 @@ DynamicGame >> determineInitialOrderWithDice [
 
 { #category : 'private' }
 DynamicGame >> placeAllPlayersRandomly [
-	|validPositions|
+	|validPositions safePosition|
 	board ifNil: [ self error:'No hay tablero.' ].
 	players ifEmpty: [ self error: 'No hay jugadores.' ].
-	players size >= board capacity ifFalse: [ 'El tablero es muy pequeño para albergar a todos los jugadores.' ].
+	"Obtengo todas las celdas"
+	validPositions := board allPointsInside asOrderedCollection.
+	
+	"Rechazamos las celdas desde las cuales uno saldria del tablero inmediatamente"
+	safePosition := validPositions reject: [ :aPoint |
+			board willExitFrom: aPoint.
+		].
+	
+	"Actualizo lista para usar las seguras"
+	validPositions := safePosition asOrderedCollection.
+	
+	"Valido la capacidad sobre las celdas SEGURAS"
+	(players size > validPositions size) ifTrue: [ 'El tablero es muy pequeño para albergar a todos los jugadores.' ].
 	"board resetOccupants."
-	validPositions := board allPointsInside asOrderedCollection .
+	
 	players do: [ :pl ||index pos|
 		index:= rng nextInteger: validPositions size.
 		pos:= validPositions removeAt: index.
 		board placePlayer: pl at: pos ].
-	players do: [:pl | |pos|
-		validPositions ifEmpty: [ self error: 'No hay posiciones libres.' ].
-		pos:= validPositions removeFirst .
-		board placePlayer: pl at: pos].
 	^self
 	
 ]
