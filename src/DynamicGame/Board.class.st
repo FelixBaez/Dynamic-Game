@@ -179,7 +179,7 @@ Board >> printOn: aStream [
 		
 		1 to: cols do: [ :c | 
 			| point occupant cell symbol |
-			point := r @ c.
+			point := c @ r.
 			occupant := self occupantAt: point.
 			
 			aStream nextPut: $[. 
