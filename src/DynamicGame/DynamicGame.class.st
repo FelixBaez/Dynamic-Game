@@ -95,7 +95,7 @@ DynamicGame >> determineInitialOrderWithDice [
 	|pendientes ordenFinal |
 	pendientes:= players copy.
 	ordenFinal := OrderedCollection new.
-	ordenFinal size < players size whileTrue: [
+	[ordenFinal size < players size] whileTrue: [
 		|buckets empates|
 		buckets := Dictionary new.
 		pendientes do: [ :p ||k|
@@ -126,7 +126,7 @@ DynamicGame >> placeAllPlayersRandomly [
 	players do: [:pl | |pos|
 		validPositions ifEmpty: [ self error: 'No hay posiciones libres.' ].
 		pos:= validPositions removeFirst .
-		board placePlayer: pl at: pos . pl setPosition: pos].
+		board placePlayer: pl at: pos].
 	^self
 	
 ]
@@ -163,6 +163,12 @@ DynamicGame >> playOneTurn [
 	
 ]
 
+{ #category : 'accessing' }
+DynamicGame >> players [
+
+	^ players
+]
+
 { #category : 'private' }
 DynamicGame >> pushChainFrom: aPoint [
 	|from to current pushed|
@@ -192,7 +198,7 @@ DynamicGame >> randomPointInside [
 { #category : 'running' }
 DynamicGame >> startWith: someplayers on: aBoard seed: aSeed maxTurns: anInteger [
 	"Verificar si los datos tienen sentido."
-	((someplayers isEmpty) or:[maxTurns <= 0]) ifTrue: [self error:'Parámetros inválidos.'].
+	((someplayers isEmpty) or:[anInteger <= 0]) ifTrue: [self error:'Parámetros inválidos.'].
 	players := someplayers asOrderedCollection ."Ingresar jugadores"
 	board:= aBoard . "Establecer tablero de juego."
 	seed:= aSeed ."Definir semilla."

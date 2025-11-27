@@ -125,6 +125,10 @@ Board >> isOccupied: aPoint [
 { #category : 'player management' }
 Board >> movePlayer: aPlayer to: aTargetPoint [
 	"Mueve un jugador de su posición actual a una nueva"
+	
+	"Controlo que el movimiento respete la direccion"
+	(aTargetPoint = (self nextPointFrom: (aPlayer position))) ifFalse: [ self error: 'El movimiento no respeta la direccion de la celda' ].
+	
 	self removePlayerAt: aPlayer position.
 	self placePlayer: aPlayer at: aTargetPoint.
 ]
