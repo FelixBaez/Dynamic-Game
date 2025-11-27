@@ -23,9 +23,10 @@ Class {
 }
 
 { #category : 'instance creation' }
-Board class >> rows: aRows cols: aCols [
+Board class >> rows: aRows cols: aCols rng: rng [
 	^ self new 
 	initializeRows: aRows cols: aCols;
+	initializeArrowsWith: rng;
 	yourself 
 ]
 

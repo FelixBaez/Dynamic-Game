@@ -22,7 +22,7 @@ Class {
 { #category : 'instance creation' }
 Dice class >> six [ 
 	^ self new 
-	rng: Random;
+	initialize;
 	yourself 
 ]
 
@@ -50,6 +50,12 @@ Dice >> initialize [
 Dice >> lastRoll [
 
 	^ lastRoll
+]
+
+{ #category : 'accessing' }
+Dice >> rng [
+
+	^ rng
 ]
 
 { #category : 'accessing' }

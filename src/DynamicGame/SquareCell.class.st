@@ -80,8 +80,7 @@ SquareCell >> rotateRight [
 		             (#right -> #down).
 		             (#down -> #left).
 		             (#left -> #up) }
-		             at: direction
-		             ifAbsent: [
+		             ifNil: [
 		             self error:
 			             'Invalid direction: ' , direction printString ]
 ]
