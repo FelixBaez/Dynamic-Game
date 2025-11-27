@@ -53,6 +53,12 @@ Dice >> lastRoll [
 ]
 
 { #category : 'accessing' }
+Dice >> lastRoll: anObject [
+
+	lastRoll := anObject
+]
+
+{ #category : 'accessing' }
 Dice >> rng [
 
 	^ rng

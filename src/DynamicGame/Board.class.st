@@ -68,8 +68,26 @@ Board >> cellAt: aPoint [
 ]
 
 { #category : 'accessing' }
+Board >> cells [
+
+	^ cells
+]
+
+{ #category : 'accessing' }
+Board >> cells: anObject [
+
+	cells := anObject
+]
+
+{ #category : 'accessing' }
 Board >> cols [
 ^cols
+]
+
+{ #category : 'accessing' }
+Board >> cols: anObject [
+
+	cols := anObject
 ]
 
 { #category : 'initialization' }
@@ -151,6 +169,18 @@ Board >> occupantAt: aPoint [
 	^ occupants at: aPoint ifAbsent: [ nil ]
 ]
 
+{ #category : 'accessing' }
+Board >> occupants [
+
+	^ occupants
+]
+
+{ #category : 'accessing' }
+Board >> occupants: anObject [
+
+	occupants := anObject
+]
+
 { #category : 'player management' }
 Board >> placePlayer: aPlayer at: aPoint [
 	"Guarda al jugador en el diccionario de posiciones y actualiza al jugador"
@@ -226,6 +256,12 @@ Board >> rotateCellAt: aPoint [
 { #category : 'accessing' }
 Board >> rows [ 
 ^rows 
+]
+
+{ #category : 'accessing' }
+Board >> rows: anObject [
+
+	rows := anObject
 ]
 
 { #category : 'testing' }

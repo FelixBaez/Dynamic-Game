@@ -66,6 +66,18 @@ DynamicGame >> alivePlayers [
 ^alivePl asOrderedCollection 
 ]
 
+{ #category : 'accessing' }
+DynamicGame >> board [
+
+	^ board
+]
+
+{ #category : 'accessing' }
+DynamicGame >> board: anObject [
+
+	board := anObject
+]
+
 { #category : 'private' }
 DynamicGame >> checkEndCondition [
 	|lastMove allAlivePlayers|
@@ -109,6 +121,66 @@ DynamicGame >> determineInitialOrderWithDice [
 		pendientes:= empates].
 	players := ordenFinal .
 ^self	
+]
+
+{ #category : 'accessing' }
+DynamicGame >> dice [
+
+	^ dice
+]
+
+{ #category : 'accessing' }
+DynamicGame >> dice: anObject [
+
+	dice := anObject
+]
+
+{ #category : 'accessing' }
+DynamicGame >> eliminationOrder [
+
+	^ eliminationOrder
+]
+
+{ #category : 'accessing' }
+DynamicGame >> eliminationOrder: anObject [
+
+	eliminationOrder := anObject
+]
+
+{ #category : 'accessing' }
+DynamicGame >> isOver [
+
+	^ isOver
+]
+
+{ #category : 'accessing' }
+DynamicGame >> isOver: anObject [
+
+	isOver := anObject
+]
+
+{ #category : 'accessing' }
+DynamicGame >> maxTurns [
+
+	^ maxTurns
+]
+
+{ #category : 'accessing' }
+DynamicGame >> maxTurns: anObject [
+
+	maxTurns := anObject
+]
+
+{ #category : 'accessing' }
+DynamicGame >> moves [
+
+	^ moves
+]
+
+{ #category : 'accessing' }
+DynamicGame >> moves: anObject [
+
+	moves := anObject
 ]
 
 { #category : 'private' }
@@ -177,6 +249,12 @@ DynamicGame >> players [
 	^ players
 ]
 
+{ #category : 'accessing' }
+DynamicGame >> players: anObject [
+
+	players := anObject
+]
+
 { #category : 'private' }
 DynamicGame >> pushChainFrom: aPoint [
 	|from to current pushed|
@@ -201,6 +279,30 @@ DynamicGame >> randomPointInside [
 	x:= rng nextInteger: board cols.
 	y:= rng nextInteger: board rows. 
 ^x@y
+]
+
+{ #category : 'accessing' }
+DynamicGame >> rng [
+
+	^ rng
+]
+
+{ #category : 'accessing' }
+DynamicGame >> rng: anObject [
+
+	rng := anObject
+]
+
+{ #category : 'accessing' }
+DynamicGame >> seed [
+
+	^ seed
+]
+
+{ #category : 'accessing' }
+DynamicGame >> seed: anObject [
+
+	seed := anObject
 ]
 
 { #category : 'running' }
@@ -228,7 +330,37 @@ DynamicGame >> startWith: someplayers on: aBoard seed: aSeed maxTurns: anInteger
 ]
 
 { #category : 'accessing' }
+DynamicGame >> turnIndex [
+
+	^ turnIndex
+]
+
+{ #category : 'accessing' }
+DynamicGame >> turnIndex: anObject [
+
+	turnIndex := anObject
+]
+
+{ #category : 'accessing' }
+DynamicGame >> turnNumber [
+
+	^ turnNumber
+]
+
+{ #category : 'accessing' }
+DynamicGame >> turnNumber: anObject [
+
+	turnNumber := anObject
+]
+
+{ #category : 'accessing' }
 DynamicGame >> winner [
 	isOver ifFalse: [ ^ nil ].
 ^winner
+]
+
+{ #category : 'accessing' }
+DynamicGame >> winner: anObject [
+
+	winner := anObject
 ]
