@@ -301,6 +301,64 @@ DynamicGame >> rng: anObject [
 	rng := anObject
 ]
 
+{ #category : 'running' }
+DynamicGame >> runVisualDemo [
+	"Ejecuta el juego completo reportando al Transcript paso a paso"
+
+	Transcript open; clear.
+	Transcript show: '===== INICIO DEMO VISUAL (Seed: ', seed asString, ') ====='; cr.
+	Transcript show: board; cr.
+
+	[ self isOver ] whileFalse: [ 
+		| current startPos nextPos victim roll remaining |
+		current := self currentPlayer.
+		remaining := maxTurns - turnNumber.
+		
+		Transcript cr; show: '>>> TURNO #', turnNumber printString, 
+					  ' (Restan: ', remaining printString, ') | Juega: ', current name; cr.
+
+		"Tirar dado"
+		roll := dice roll.
+		Transcript show: '    Dado: ', roll asString; cr.
+
+		"Ejecutar pasos atómicos con animación"
+		roll timesRepeat: [ 
+			(current isAlive and: [ isOver not ]) ifTrue: [
+				startPos := current position.
+				
+				"Predicción para el Log"
+				nextPos := board nextPointFrom: startPos.
+				Transcript show: '    Moviendo: ', startPos asString, ' -> ', nextPos asString.
+				
+				(board isInside: nextPos) 
+					ifTrue: [ 
+						(board isOccupied: nextPos) ifTrue: [
+							victim := board occupantAt: nextPos.
+							Transcript show: ' [💥 COLISIÓN con ', victim name, ']'.
+						]
+					] 
+					ifFalse: [ Transcript show: ' [☠️ SALIDA]' ].
+				Transcript cr.
+
+				"Ejecución"
+				self playAtomicStepFor: current.
+				
+				"Visualización"
+				Transcript show: board; cr.
+			]
+		].
+
+		"Avanzar turno"
+		self advanceTurn.
+		self checkEndCondition.
+	].
+
+	Transcript show: '===== JUEGO TERMINADO ====='; cr.
+	self winner 
+		ifNotNil: [ :w | Transcript show: '🏆 GANADOR: ', w name; cr ]
+		ifNil: [ Transcript show: '🏳️ EMPATE O TODOS ELIMINADOS'; cr ].
+]
+
 { #category : 'accessing' }
 DynamicGame >> seed [
 
