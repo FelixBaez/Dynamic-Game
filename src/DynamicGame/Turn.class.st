@@ -101,19 +101,21 @@ Turn >> path: anObject [
 
 { #category : 'printing' }
 Turn >> printOn: aStream [
-	"Formato: turn 5: Benjamin (Roll: 4) -> [Path size: 4]"
+	"Formato: Turno 5 (Ana): 1@1 -> 1@2 -> 2@2"
+	
 	aStream 
-		nextPutAll: 'Turn ';
-		print: turnNumber;
-		nextPutAll: ': ';
-		nextPutAll: (turnPlayer ifNotNil: [ turnPlayer name ] ifNil: ['Desconocido']);
-		nextPutAll: ' (Roll: ';
-		print: turnRoll;
-		nextPutAll: ')'.
+		nextPutAll: 'Turno '; print: turnNumber;
+		nextPutAll: ' (';
+		nextPutAll: (turnPlayer ifNotNil: [ turnPlayer name ] ifNil: ['?']);
+		nextPutAll: ') Roll: '; print: turnRoll;
+		nextPutAll: ' | Camino: '.
 		
-	self hasEliminations ifTrue: [ 
-		aStream nextPutAll: ' [ELIMINADO]'
-	].
+	path ifEmpty: [ aStream nextPutAll: 'Sin movimientos' ]
+	     ifNotEmpty: [ 
+			path do: [ :p | aStream print: p ] separatedBy: [ aStream nextPutAll: ' -> ' ] 
+		].
+		
+	self hasEliminations ifTrue: [ aStream nextPutAll: ' [HUBO MUERTE]' ].
 ]
 
 { #category : 'testing' }
