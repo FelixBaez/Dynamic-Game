@@ -41,7 +41,7 @@ Class {
 	#package : 'DynamicGame'
 }
 
-{ #category : 'running' }
+{ #category : 'instance creation' }
 DynamicGame class >> startWith: somePlayers on: aBoard seed: aSeed maxTurns: anInteger [
 	^ self new
 		startWith: somePlayers on: aBoard seed: aSeed maxTurns: anInteger;

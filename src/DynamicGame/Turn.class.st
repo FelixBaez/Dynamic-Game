@@ -28,6 +28,8 @@ Turn class >> number: aNumber player: aPlayer roll: aValue [
 	"Crea turno y asigna valores"
 	^ self new
 		initializeNumber: aNumber player: aPlayer roll: aValue;
+		path: OrderedCollection new;
+		eliminatedPlayers: OrderedCollection new;
 		yourself.
 ]
 
@@ -49,6 +51,12 @@ Turn >> addStep: aPoint [
 Turn >> eliminatedPlayers [
 
 	^ eliminatedPlayers
+]
+
+{ #category : 'accessing' }
+Turn >> eliminatedPlayers: anObject [
+
+	eliminatedPlayers := anObject
 ]
 
 { #category : 'testing' }
@@ -83,6 +91,12 @@ Turn >> initializeNumber: anInteger player: aPlayer roll: anIntegerRoll [
 Turn >> path [
 
 	^ path
+]
+
+{ #category : 'accessing' }
+Turn >> path: anObject [
+
+	path := anObject
 ]
 
 { #category : 'printing' }
@@ -121,13 +135,31 @@ Turn >> turnNumber [
 ]
 
 { #category : 'accessing' }
+Turn >> turnNumber: anObject [
+
+	turnNumber := anObject
+]
+
+{ #category : 'accessing' }
 Turn >> turnPlayer [
 
 	^ turnPlayer
 ]
 
 { #category : 'accessing' }
+Turn >> turnPlayer: anObject [
+
+	turnPlayer := anObject
+]
+
+{ #category : 'accessing' }
 Turn >> turnRoll [
 
 	^ turnRoll
+]
+
+{ #category : 'accessing' }
+Turn >> turnRoll: anObject [
+
+	turnRoll := anObject
 ]

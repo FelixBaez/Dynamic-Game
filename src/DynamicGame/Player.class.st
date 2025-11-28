@@ -22,7 +22,7 @@ Class {
 	#package : 'DynamicGame'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 Player class >> name: aName color: aColor [
 ^ self new
 	configureWithName: aName color: aColor;
