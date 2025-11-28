@@ -57,7 +57,7 @@ DynamicGame >> advanceTurn [
 	turnIndex := turnIndex + 1.
 	turnIndex > players  size ifTrue: [ 
 		turnIndex := 1  ].
-	(players at: turnIndex isAlive) whileFalse: [ 
+	[(players at: turnIndex) isAlive] whileFalse: [ 
 		turnIndex := turnIndex + 1.
 		turnIndex > players size ifTrue: [ turnIndex := 1 ].
 		turnIndex = startIndex ifTrue: [ isOver:= true. winner:= nil . ^self]

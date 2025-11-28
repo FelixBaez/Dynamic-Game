@@ -74,15 +74,16 @@ SquareCell >> printOn: aStream [
 
 { #category : 'geometry' }
 SquareCell >> rotateRight [
-	"Rotate 90 degrees clockwise."
-	direction := {
-		             (#up -> #right).
-		             (#right -> #down).
-		             (#down -> #left).
-		             (#left -> #up) }
-		             ifNil: [
-		             self error:
-			             'Invalid direction: ' , direction printString ]
+"Rotate 90 degrees clockwise."
+    | map |
+    map := Dictionary newFromPairs: {
+        #up.    #right.
+        #right. #down.
+        #down.  #left.
+        #left.  #up }.
+    direction := map
+        at: direction
+        ifAbsent: [ self error: 'Invalid direction: ', direction printString ].
 ]
 
 { #category : 'geometry' }
