@@ -190,49 +190,33 @@ Board >> placePlayer: aPlayer at: aPoint [
 
 { #category : 'printing' }
 Board >> printOn: aStream [
-	"Imprime una cabecera y luego dibuja la grilla con flechas y jugadores"
+	"Imprime la grilla mostrando SIEMPRE la flecha y, si hay jugador, su inicial"
 	| arrowSymbols |
-	
-	aStream 
-		nextPutAll: 'Board (';
-		print: rows;
-		nextPut: $x;
-		print: cols;
-		nextPut: $);
-		cr. 
+	aStream
+		nextPutAll: 'Board ('; print: rows; nextPut: $x; print: cols; nextPut: $); cr.
 
-	arrowSymbols := Dictionary newFrom: { 
-		#up -> $^ . 
-		#down -> $v . 
-		#left -> $< . 
-		#right -> $> 
+	arrowSymbols := Dictionary newFrom: {
+		#up -> $^ .  #down -> $v .  #left -> $< .  #right -> $>
 	}.
 
+	1 to: rows do: [ :r |
+		aStream tab.
+		1 to: cols do: [ :c |
+			| p cell arrow occ |
+			p    := c @ r.
+			cell := self cellAt: p.
+			arrow := arrowSymbols at: cell direction ifAbsent: [ $? ].
+			occ := self occupantAt: p.  "nil si no hay jugador"
 
-	1 to: rows do: [ :r | 
-		aStream tab. 
-		
-		1 to: cols do: [ :c | 
-			| point occupant cell symbol |
-			point := c @ r.
-			occupant := self occupantAt: point.
-			
-			aStream nextPut: $[. 
-			
-			occupant 
-				ifNotNil: [ 
-					"Si hay jugador, mostramos su inicial"
-					aStream nextPut: (occupant name first) ]
-				ifNil: [ 
-					"Si está vacío, mostramos la flecha de la celda"
-					cell := self cellAt: point.
-					symbol := arrowSymbols at: cell direction ifAbsent: [ $? ].
-					aStream nextPut: symbol ].
-			
-			aStream nextPut: $]. 
+			aStream
+				nextPut: $[;
+				nextPut: arrow;
+				nextPut: (occ ifNil: [ $  ] ifNotNil: [ occ name first ]);
+				nextPut: $].
 		].
-		aStream cr. 
-	]
+		aStream cr.
+	].
+
 ]
 
 { #category : 'player management' }
