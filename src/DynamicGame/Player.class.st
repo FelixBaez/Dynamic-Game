@@ -22,6 +22,13 @@ Class {
 	#package : 'DynamicGame'
 }
 
+{ #category : 'as yet unclassified' }
+Player class >> name: aName color: aColor [
+^ self new
+	configureWithName: aName color: aColor;
+	yourself 
+]
+
 { #category : 'accessing' }
 Player >> color [
 

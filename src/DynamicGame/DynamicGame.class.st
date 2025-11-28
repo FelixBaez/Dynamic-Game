@@ -42,6 +42,13 @@ Class {
 }
 
 { #category : 'running' }
+DynamicGame class >> startWith: somePlayers on: aBoard seed: aSeed maxTurns: anInteger [
+	^ self new
+		startWith: somePlayers on: aBoard seed: aSeed maxTurns: anInteger;
+		yourself
+]
+
+{ #category : 'running' }
 DynamicGame >> advanceTurn [
 	| startIndex |
 	isOver ifTrue: [ ^self ]. "si termino, fin"
