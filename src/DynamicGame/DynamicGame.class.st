@@ -224,7 +224,7 @@ DynamicGame >> playAtomicStepFor: aPlayer [
 	|from to|
 	from := aPlayer position. "Origen"
 	to := board nextPointFrom: from . "Destino"
-	(board isInside: to) ifTrue: [ aPlayer eliminate. eliminationOrder add: aPlayer. self checkEndCondition ]. "Si sale, eliminar"
+	(board isInside: to) ifFalse: [ board removePlayerAt:from. aPlayer eliminate. eliminationOrder add: aPlayer. board rotateCellAt:from. self checkEndCondition. ^self ]. "Si sale, eliminar"
 	(board isOccupied: to) ifTrue: [ self pushChainFrom: to . board movePlayer: aPlayer to: to. board rotateCellAt: from. ^self] "ocupado: empujar, mover y rotar"
 	ifFalse: [ board movePlayer: aPlayer to: to. board rotateCellAt: from. ^self ] "Sin colisión: mover A y rotar origen"
 	
