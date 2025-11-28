@@ -105,7 +105,7 @@ DynamicGame >> currentPlayer [
 	players isEmpty ifTrue: [ self error: 'No hay jugadores.' ].
 	(turnIndex < 1 or: [turnIndex > players size]) ifTrue: [self error: 'Turno fuera de rango'].
 	anyPlayer := players at: turnIndex  .
-	anyPlayer isAlive ifFalse: [ self error:'El jugador esta muerto. Se esperaba un jugador vivo.' ].
+	"anyPlayer isAlive ifFalse: [ self error:'El jugador esta muerto. Se esperaba un jugador vivo.' ]."
 	^ anyPlayer 
 ]
 
@@ -208,8 +208,8 @@ DynamicGame >> placeAllPlayersRandomly [
 	validPositions := safePosition asOrderedCollection.
 	
 	"Valido la capacidad sobre las celdas SEGURAS"
-	(players size > validPositions size) ifTrue: [ 'El tablero es muy pequeño para albergar a todos los jugadores.' ].
-	"board resetOccupants."
+	(players size > validPositions size) ifTrue: [ self error: 'El tablero es muy pequeño para albergar a todos los jugadores.' ].
+	board resetOccupants.
 	
 	players do: [ :pl ||index pos|
 		index:= rng nextInteger: validPositions size.

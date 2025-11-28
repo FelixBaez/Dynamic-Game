@@ -7,7 +7,8 @@ Class {
 		'turnButton',
 		'statusLabel',
 		'lastRollLabel',
-		'historyList'
+		'historyList',
+		'winnerLabel'
 	],
 	#category : 'DynamicGameUI',
 	#package : 'DynamicGameUI'
@@ -20,170 +21,213 @@ DynamicGameUI >> defaultLayout [
 		add: boardPresenter expand: true;
 		"Panel Derecho: Una columna vertical con ancho fijo"
 		add: (SpBoxLayout newVertical
-				add: statusLabel height: 30;
+				add: statusLabel height: 60;
 				add: lastRollLabel height: 30;
 				add: turnButton height: 60; "Botón grande como en el mockup"
 				add: (self newLabel label: 'Historial:') height: 20;
 				add: historyList; "El resto del espacio para el historial"
+				"--- NUEVO: Agregamos el label abajo con altura fija ---"
+             add: winnerLabel height: 50;
 				spacing: 10; "Espacio entre elementos verticales"
 				yourself)
 		width: 250; "Ancho fijo para el panel derecho"
-		spacing: 15; "Espacio entre los dos paneles principales"
+		spacing: 5; "Espacio entre los dos paneles principales"
 		yourself
+]
+
+{ #category : 'private' }
+DynamicGameUI >> directionToDegrees: aSymbol [
+	"toma una direccion y la convierte en grados para roassal"
+	"comienza en la posicion UP cuando grado = 0"
+	aSymbol = #up ifTrue: [ ^ 0 ].
+	aSymbol = #right ifTrue: [ ^ 90 ].
+	aSymbol = #down ifTrue: [ ^ 180 ].
+	aSymbol = #left ifTrue: [ ^ 270 ].
 ]
 
 { #category : 'actions' }
 DynamicGameUI >> doPlayTurn [
-	"Esta acción se ejecuta al hacer clic en el botón"
+	"Acción del botón: Jugar turno, actualizar vista y manejar el fin del juego silenciosamente"
 
-	"Validar si el juego terminó"
-	game isOver ifTrue: [ 
-		self inform: '¡El juego ha terminado! Ganador: ', (game winner ifNotNil: [:w| w name] ifNil: ['Nadie']).
-		turnButton disable.
-		^ self.
+	"1. Si el juego ya estaba terminado, no hacemos nada"
+	game isOver ifTrue: [ ^ self ].
+
+	[
+		"2. Intentamos jugar el turno"
+		game playOneTurn.
+
+		"3. Actualizamos la vista"
+		self updateView.
+		
+		"Restauramos el color de estado normal"
+		statusLabel color: Color black.
+
+	] on: Error do: [ :excepcion | 
+		"4. MANEJO DE ERRORES"
+
+		game isOver 
+			ifTrue: [ 
+
+				self updateView.
+			]
+			ifFalse: [ 
+				statusLabel label: '⛔ ', excepcion messageText.
+				statusLabel color: Color red.
+			].
 	].
-
-	"1. Ejecutar la lógica del dominio"
-	game playOneTurn.
-
-	"2. Refrescar toda la interfaz con los nuevos datos"
-	self updateView.
-
 ]
 
 { #category : 'drawing' }
 DynamicGameUI >> drawBoardOn: aCanvas [
-	"Este método se llama cada vez que boardView refresh se ejecuta"
-	| cellShapes scale |
-	
-	"Limpiamos el canvas por si acaso"
-	
-	cellShapes := OrderedCollection new.
-	scale := 60. "Tamaño base de las celdas"
+	| cellShapes scale arrowForm |
 
-	"1. DIBUJAR LAS CELDAS Y FLECHAS"
-	"Iteramos fila por fila para que el grid layout funcione fácil"
+	cellShapes := OrderedCollection new.
+	scale := 60.
+	
+	"imagen a utilizar en las celdas"
+	arrowForm := (FileSystem workingDirectory / 'arrow.png') exists 
+		ifTrue: [ ImageReadWriter formFromFileNamed: 'arrow.png' ]
+		ifFalse: [ 
+			"Fallback para colocar un icono en caso de no encontrar la img"
+			self iconNamed: #arrowUp 
+		].
+
+	"RECORRER EL TABLERO"
 	1 to: game board rows do: [ :row |
 		1 to: game board cols do: [ :col |
-			| point cell box arrow composite visualPoint |
+			| point cell player box arrowBitmap composite colorFondo |
+			
 			point := col @ row.
 			cell := game board cellAt: point.
+			player := game board occupantAt: point.
 			
-			"La caja gris de fondo"
+		
+			colorFondo := player 
+				ifNil: [ Color white ] 
+				ifNotNil: [ player color alpha: 0.3 ]. "Color pastel"
+
 			box := RSBox new 
 				size: scale; 
-				color: Color lightGray; 
-				border: (RSBorder new color: Color gray; width: 2);
-				cornerRadius: 5.
-			
-			"La flecha (un polígono simple)"
-			arrow := RSPolygon new 
-				points: { (-1 * scale / 4) @ (-1 * scale / 4) .  0 @ (scale / 3) . (scale / 4) @ (-1 * scale / 4) };
-				color: Color black ;
-				size: scale / 2.
-				
-			"Rotamos la flecha según la dirección lógica de la celda"
-			"self rotateRight arrow direction: cell direction."
+				color: colorFondo; 
+				border: (RSBorder new color: Color black; width: 4).
 
-			"Combinamos caja y flecha en un solo objeto visual"
+
+			arrowBitmap := RSBitmap new.
+			arrowBitmap form: arrowForm. 
+			arrowBitmap size: scale * 0.15. 
+			
+			"Rotamos la imagen usando el convertidor"
+			arrowBitmap rotateByDegrees: (self directionToDegrees: cell direction).
+
+			"COMPOSICIÓN"
 			composite := RSComposite new.
-			composite add: box; add: arrow.
-			"Guardamos la coordenada lógica en el modelo visual para usarla luego"
-			composite model: point. 
+			composite add: box.         
+			composite add: arrowBitmap. 
+			composite model: point.
 			
 			cellShapes add: composite.
 		]
 	].
 
-	"Añadimos todas las celdas al canvas"
 	aCanvas addAll: cellShapes.
-	"Usamos un layout de grilla para ordenarlas automáticamente"
-	RSGridLayout new lineItemsCount: game board cols; gapSize: 5; on: cellShapes.
+	RSGridLayout new lineItemsCount: game board cols; gapSize: 0; on: cellShapes.
 
-	"2. DIBUJAR LOS JUGADORES ENCIMA"
-	game players do: [ :player |
-		player isAlive ifTrue: [
-			| playerCircle targetCellShape |
-			"Buscamos la forma visual que corresponde a la posición del jugador"
-			targetCellShape := cellShapes detect: [ :shape | shape model = player position ].
-			
-			"Creamos el círculo del jugador"
-			playerCircle := RSEllipse new
-				size: scale * 0.1; "Un poco más chico que la celda"
-				color: player color.
-			
-			"Lo ubicamos en la misma posición que la celda"
-			playerCircle position: targetCellShape position.
-			
-			"Lo añadimos al canvas (se dibujará encima porque se añade al final)"
-			aCanvas add: playerCircle.
-		]
-	].
-
-	"Añadir controles básicos de zoom/paneo (opcional)"
 	aCanvas @ RSCanvasController.
-
 ]
 
 { #category : 'initialization' }
 DynamicGameUI >> initializePresenters [
-	| players seed |
-    "1. INICIALIZAR EL MODELO (Tu lógica)"
+	| players seed dice |
+    "----MODELO----"
     game := DynamicGame new.
 	seed := 123456.
 	players := {
     (Player name: 'Ana' color: Color red).
     (Player name: 'Beto' color: Color blue).
-    (Player name: 'Carla' color: Color green).
     } asOrderedCollection.
-    "Configuración estándar: 2 jugadores, mapa 5x5, semilla fija"
+
     game := DynamicGame new
     startWith: players seed: seed maxTurns: 20.
     game placeAllPlayersRandomly.
-
-   "2. CREAR LOS WIDGETS (La Vista)"
+	
+   "-----VISTA----"
+	dice := (FileSystem workingDirectory / 'dice.png') exists 
+		ifTrue: [ (ImageReadWriter formFromFileNamed: 'dice.png') scaledToSize: 50@50 ]
+		ifFalse: [ self iconNamed: #objects ]. "Fallback si no hay imagen"
 	
 	"Área del tablero (Roassal)"
 	boardPresenter := self instantiate: SpRoassalPresenter.
 	"Le decimos que use nuestro método de dibujo personalizado"
 	boardPresenter script: [ :canvas | self drawBoardOn: canvas ].
 
-	"Panel derecho: Etiquetas"
+	"Panel derecho"
 	statusLabel := self newLabel.
-	lastRollLabel := self newLabel label: 'Dado: -'.
+	lastRollLabel := self newLabel.
 
-	"Botón de acción"
+	"Botón de tirar dado"
 	 turnButton := self newButton
 		label: 'TIRAR DADO';
-		icon: (self iconNamed: #smallDoIt); "Icono opcional"
+		icon: dice;
 		action: [ self doPlayTurn ]. "Conectamos el clic con el método de acción"
 
-	"Lista de historial"
+	"Historial"
 	historyList := self newList.
+	
 	"Configuramos cómo mostrar cada objeto 'Turn' en la lista"
 	historyList display: [ :turn | 
-		'T', turn turnNumber asString, ': ', turn turnPlayer name, 
-		' (sacó ', turn turnRoll asString, ') terminó en ', turn endPosition asString ].
-
+    | destinoTexto |
+    "Si endPosition es nil, escribimos MUERTO/ELIMINADO"
+    destinoTexto := turn endPosition 
+        ifNil: [ 'ELIMINADO' ] 
+        ifNotNil: [ turn endPosition asString ].
+        
+    'T', turn turnNumber asString, ': ', turn turnPlayer name, 
+    ' (sacó ', turn turnRoll asString, ') -> ', destinoTexto 
+].
+	
 	"Actualizamos la vista por primera vez para mostrar el estado inicial"
 	self updateView.
 ]
 
+{ #category : 'initialization' }
+DynamicGameUI >> initializeWindow: aWindowPresenter [
+	super initializeWindow: aWindowPresenter.
+	aWindowPresenter title: 'Juego Repulsor | G14'; initialExtent: 750@500.
+	
+]
+
 { #category : 'updating' }
 DynamicGameUI >> updateView [
-	"Actualiza todos los widgets basándose en el estado actual del objeto 'game'"
+	"Actualiza la interfaz usando texto plano estándar"
+	| currPlayerName lastRollText |
 	
-	"Actualizar etiquetas"
-	statusLabel label: 'Turno: ', game turnNumber asString, ' - Juega: ', game currentPlayer name.
+	"1. Obtener nombre del jugador actual (Protegido contra errores)"
+	currPlayerName := [ game currentPlayer name ] 
+		on: Error 
+		do: [ '---' ].
+
+	"2. Actualizar etiquetas con texto simple"
+	statusLabel label: 'Turno: ', game turnNumber asString, ' - Juega: ', currPlayerName.
 	
-	"Mostrar el último dado tirado (si hubo alguno)"
-	game moves ifNotEmpty: [ 
-		lastRollLabel label: 'Dado: ', game moves last turnRoll asString.
-	].
-	
-	"Actualizar la lista del historial (mostrando el más reciente arriba)"
+	"3. Actualizar etiqueta del dado"
+	lastRollText := game moves 
+		ifEmpty: [ '-' ] 
+		ifNotEmpty: [ game moves last turnRoll asString ].
+		
+	lastRollLabel label: 'Dado: ', lastRollText.
+
+	"4. Actualizar lista y tablero"
 	historyList items: game moves reversed.
-	
-	"IMPORTANTE: Decirle a Roassal que redibuje el tablero"
 	boardPresenter refresh.
+	
+	"5. Lógica de Ganador"
+	game isOver ifTrue: [ 
+		| nombre |
+		nombre := game winner ifNotNil: [:w | w name] ifNil: ['Nadie'].
+		
+		"Cambiamos el botón gigante"
+		turnButton label: 'GANADOR: ', nombre.
+		turnButton icon: (self iconNamed: #thumbsUp). 
+
+	].
 ]

@@ -229,6 +229,11 @@ Board >> removePlayerAt: aPoint [
 	
 ]
 
+{ #category : 'initialization' }
+Board >> resetOccupants [
+	occupants removeAll.
+]
+
 { #category : 'accessing' }
 Board >> rotateCellAt: aPoint [
 	"Busca la celda y la hace rotar"
