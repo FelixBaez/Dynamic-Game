@@ -53,6 +53,7 @@ DynamicGame >> advanceTurn [
 	| startIndex |
 	isOver ifTrue: [ ^self ]. "si termino, fin"
 	players size == eliminationOrder size ifTrue:[ isOver := true. winner:= nil. ^self]. "Todos los jugadores eliminados, fin"
+	turnNumber := turnNumber + 1.
 	startIndex := turnIndex .
 	turnIndex := turnIndex + 1.
 	turnIndex > players  size ifTrue: [ 
@@ -102,8 +103,8 @@ DynamicGame >> checkEndCondition [
 DynamicGame >> currentPlayer [
 	|anyPlayer|
 	players isEmpty ifTrue: [ self error: 'No hay jugadores.' ].
-	(turnNumber < 1 or: [turnNumber > players size]) ifTrue: [self error: 'Turno fuera de rango'].
-	anyPlayer := players at: turnNumber  .
+	(turnIndex < 1 or: [turnIndex > players size]) ifTrue: [self error: 'Turno fuera de rango'].
+	anyPlayer := players at: turnIndex  .
 	anyPlayer isAlive ifFalse: [ self error:'El jugador esta muerto. Se esperaba un jugador vivo.' ].
 	^ anyPlayer 
 ]
