@@ -308,7 +308,7 @@ DynamicGame >> runVisualDemo [
 	Transcript open; clear.
 	Transcript show: '===== INICIO DEMO VISUAL (Seed: ', seed asString, ') ====='; cr.
 	Transcript show: board; cr.
-
+	isOver := false.
 	[ self isOver ] whileFalse: [ 
 		| current startPos nextPos victim roll remaining |
 		current := self currentPlayer.
