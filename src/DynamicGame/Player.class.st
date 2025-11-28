@@ -30,6 +30,12 @@ Player class >> name: aName color: aColor [
 ]
 
 { #category : 'accessing' }
+Player >> alive: anObject [
+
+	alive := anObject
+]
+
+{ #category : 'accessing' }
 Player >> color [
 
 	^ color
@@ -58,6 +64,7 @@ Player >> configureWithName: aName color: aColor [
 	"Configura valor de atributos del jugador"
 	self name: aName.
 	self color: aColor. 
+	self alive: true.
 	
 ]
 
