@@ -42,9 +42,9 @@ Class {
 }
 
 { #category : 'instance creation' }
-DynamicGame class >> startWith: somePlayers on: aBoard seed: aSeed maxTurns: anInteger [
+DynamicGame class >> startWith: somePlayers seed: aSeed maxTurns: anInteger [
 	^ self new
-		startWith: somePlayers on: aBoard seed: aSeed maxTurns: anInteger;
+		startWith: somePlayers seed: aSeed maxTurns: anInteger;
 		yourself
 ]
 
@@ -313,16 +313,15 @@ DynamicGame >> seed: anObject [
 ]
 
 { #category : 'running' }
-DynamicGame >> startWith: someplayers on: aBoard seed: aSeed maxTurns: anInteger [
+DynamicGame >> startWith: someplayers seed: aSeed maxTurns: anInteger [
 	"Verificar si los datos tienen sentido."
 	((someplayers isEmpty) or:[anInteger <= 0]) ifTrue: [self error:'Parámetros inválidos.'].
 	players := someplayers asOrderedCollection ."Ingresar jugadores"
-	board:= aBoard . "Establecer tablero de juego."
 	seed:= aSeed ."Definir semilla."
 	maxTurns:= anInteger ."Definir maximo nro de turnos."
-	rng:= Random new seed: seed. "Generador nro aleat rng vinculado a la seed."
-	dice:= Dice six. "Genera un dado a partir de seed."
-	dice rng: rng. "Genera un numero aleatorio de ese dado a partir de rng."
+	dice:= Dice six: aSeed. "Genera un dado a partir de seed."
+	rng:= dice rng.
+	board:= Board rows: 5 cols: 5 rng: dice rng. "Establecer tablero de juego."
 	eliminationOrder := OrderedCollection new. "Estado inicial del juego. Colecc vacía."
 	moves:= OrderedCollection new. "Colección vacía."
 	isOver := false. "Final del juego = falso"

@@ -20,9 +20,9 @@ Class {
 }
 
 { #category : 'instance creation' }
-Dice class >> six [ 
+Dice class >> six: aSeed [ 
 	^ self new 
-	initialize;
+	initialize: aSeed;
 	yourself 
 ]
 
@@ -39,11 +39,10 @@ Dice >> faces: anObject [
 ]
 
 { #category : 'initialization' }
-Dice >> initialize [
-	super initialize.
+Dice >> initialize: aSeed [
 	faces := #(1 2 3 4 5 6).
 	"Por defecto usamos un Random sin seed fija, a menos que se cambie luego"
-	rng:= Random new.
+	rng:= Random new seed: aSeed.
 ]
 
 { #category : 'accessing' }
