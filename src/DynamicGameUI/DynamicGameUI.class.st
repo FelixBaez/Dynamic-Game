@@ -11,7 +11,9 @@ Class {
 		'statusLabel',
 		'lastRollLabel',
 		'historyList',
-		'winnerLabel'
+		'winnerLabel',
+		'turnsLeftLabel',
+		'diceIcon'
 	],
 	#category : 'DynamicGameUI',
 	#package : 'DynamicGameUI'
@@ -33,6 +35,8 @@ DynamicGameUI >> defaultLayout [
 		add: boardPresenter expand: true;
 		"Panel Derecho: Una columna vertical con ancho fijo"
 		add: (SpBoxLayout newVertical
+				add: turnsLeftLabel height: 30;  "Nuevo indicador"
+         add: statusLabel height: 60;
 				add: statusLabel height: 60;
 				add: lastRollLabel height: 30;
 				add: turnButton height: 60; "Botón grande como en el mockup"
@@ -47,6 +51,18 @@ DynamicGameUI >> defaultLayout [
 		yourself
 ]
 
+{ #category : 'accessing' }
+DynamicGameUI >> diceIcon [
+
+	^ diceIcon
+]
+
+{ #category : 'accessing' }
+DynamicGameUI >> diceIcon: anObject [
+
+	diceIcon := anObject
+]
+
 { #category : 'private' }
 DynamicGameUI >> directionToDegrees: aSymbol [
 	"toma una direccion y la convierte en grados para roassal"
@@ -59,34 +75,70 @@ DynamicGameUI >> directionToDegrees: aSymbol [
 
 { #category : 'actions' }
 DynamicGameUI >> doPlayTurn [
-	"Acción del botón: Jugar turno, actualizar vista y manejar el fin del juego silenciosamente"
-
-	"1. Si el juego ya estaba terminado, no hacemos nada"
+	"Acción del botón: Ejecuta el turno, anima y REGISTRA MUERTES correctamente"
+	
 	game isOver ifTrue: [ ^ self ].
+	turnButton enabled: false.
+	turnButton label: 'Jugando...'.
 
 	[
-		"2. Intentamos jugar el turno"
-		game playOneTurn.
-
-		"3. Actualizamos la vista"
-		self updateView.
+		| roll currentPlayer currentTurn |
+		currentPlayer := game currentPlayer.
+		roll := game dice roll.
 		
-		"Restauramos el color de estado normal"
-		statusLabel color: Color black.
-
-	] on: Error do: [ :excepcion | 
-		"4. MANEJO DE ERRORES"
-
-		game isOver 
-			ifTrue: [ 
-
-				self updateView.
+		"Creamos el turno"
+		currentTurn := Turn number: game turnNumber player: currentPlayer roll: roll.
+		
+		self application defer: [ lastRollLabel label: 'Dado: ', roll asString ].
+		
+		roll timesRepeat: [ 
+			(currentPlayer isAlive and: [ game isOver not ]) ifTrue: [
+				| nextPos |
+				
+				"--- PREDICCIÓN (Solo visual) ---"
+				nextPos := game board nextPointFrom: currentPlayer position.
+				(game board isInside: nextPos) ifFalse: [ 
+					currentTurn addEvent: 'Salió del tablero'.
+				].
+				((game board isInside: nextPos) and: [ game board isOccupied: nextPos ]) ifTrue: [
+					| victim |
+					victim := game board occupantAt: nextPos.
+					currentTurn addCollisionWith: victim name.
+				].
+				
+				"--- MOVIMIENTO REAL ---"
+				game playAtomicStepFor: currentPlayer.
+				
+				"--- CORRECCIÓN CRÍTICA ---"
+				currentPlayer isAlive 
+					ifTrue: [ 
+						"Si sigue vivo, guardamos el paso"
+						currentTurn addStep: currentPlayer position. 
+					]
+					ifFalse: [ 
+						"Si murió en este paso, lo registramos en el turno"
+						currentTurn addElimination: currentPlayer.
+					].
+				"---------------------------"
+				
+				self application defer: [ boardPresenter refresh ].
+				(Delay forMilliseconds: 500) wait.
 			]
-			ifFalse: [ 
-				statusLabel label: '⛔ ', excepcion messageText.
-				statusLabel color: Color red.
+		].
+
+		game moves add: currentTurn.
+		game advanceTurn.
+		game checkEndCondition.
+
+		self application defer: [ 
+			self updateView.
+			game isOver ifFalse: [ 
+				turnButton enabled: true. 
+				turnButton label: 'TIRAR DADO'.
 			].
-	].
+		].
+	
+	] fork.
 ]
 
 { #category : 'drawing' }
@@ -149,7 +201,7 @@ DynamicGameUI >> drawBoardOn: aCanvas [
 
 { #category : 'initialization' }
 DynamicGameUI >> initializePresenters [
-	| players seed dice |
+	| players seed |
     "----MODELO----"
     game := DynamicGame new.
 	seed := 123456.
@@ -163,9 +215,9 @@ DynamicGameUI >> initializePresenters [
     game placeAllPlayersRandomly.
 	
    "-----VISTA----"
-	dice := (FileSystem workingDirectory / 'dice.png') exists 
-		ifTrue: [ (ImageReadWriter formFromFileNamed: 'dice.png') scaledToSize: 50@50 ]
-		ifFalse: [ self iconNamed: #objects ]. "Fallback si no hay imagen"
+	diceIcon := (FileSystem workingDirectory / 'dice.png') exists 
+        ifTrue: [ (ImageReadWriter formFromFileNamed: 'dice.png') scaledToSize: 50@50 ]
+        ifFalse: [ self iconNamed: #objects ].
 	
 	"Área del tablero (Roassal)"
 	boardPresenter := self instantiate: SpRoassalPresenter.
@@ -175,27 +227,40 @@ DynamicGameUI >> initializePresenters [
 	"Panel derecho"
 	statusLabel := self newLabel.
 	lastRollLabel := self newLabel.
-
+	turnsLeftLabel := self newLabel.
+	
+	winnerLabel := self newLabel.
+	
 	"Botón de tirar dado"
 	 turnButton := self newButton
 		label: 'TIRAR DADO';
-		icon: dice;
+		icon: diceIcon;
 		action: [ self doPlayTurn ]. "Conectamos el clic con el método de acción"
 
-	"Historial"
-	historyList := self newList.
-	
-	"Configuramos cómo mostrar cada objeto 'Turn' en la lista"
+historyList := self newList.
 	historyList display: [ :turn | 
-    | destinoTexto |
-    "Si endPosition es nil, escribimos MUERTO/ELIMINADO"
-    destinoTexto := turn endPosition 
-        ifNil: [ 'ELIMINADO' ] 
-        ifNotNil: [ turn endPosition asString ].
-        
-    'T', turn turnNumber asString, ': ', turn turnPlayer name, 
-    ' (sacó ', turn turnRoll asString, ') -> ', destinoTexto 
-].
+		| destinoTexto textoEventos |
+		
+		"--- CORRECCIÓN DE VISUALIZACIÓN ---"
+		"Si hubo eliminaciones, tiene prioridad sobre la posición"
+		turn hasEliminations 
+			ifTrue: [ destinoTexto := 'ELIMINADO ☠️' ]
+			ifFalse: [ 
+				destinoTexto := turn endPosition 
+					ifNil: [ '-' ] 
+					ifNotNil: [ turn endPosition asString ] 
+			].
+		"-----------------------------------"
+			
+		textoEventos := ''.
+		turn events do: [ :ev | textoEventos := textoEventos, ' [', ev, ']' ].
+		
+		'T', turn turnNumber asString, ': ', 
+		turn turnPlayer name, 
+		' (Roll: ', turn turnRoll asString, ')',
+		textoEventos, 
+		' -> ', destinoTexto
+	].
 	
 	"Actualizamos la vista por primera vez para mostrar el estado inicial"
 	self updateView.
@@ -217,8 +282,9 @@ DynamicGameUI >> setModel: aGame [
 { #category : 'updating' }
 DynamicGameUI >> updateView [
 	"Actualiza la interfaz usando texto plano estándar"
-	| currPlayerName lastRollText |
-	
+	| currPlayerName lastRollText remaining |
+	remaining := game maxTurns - game turnNumber.
+   turnsLeftLabel label: 'Turnos Restantes: ', remaining asString.
 	"1. Obtener nombre del jugador actual (Protegido contra errores)"
 	currPlayerName := [ game currentPlayer name ] 
 		on: Error do: [ '---' ].

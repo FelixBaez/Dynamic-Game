@@ -17,7 +17,8 @@ Class {
 		'turnPlayer',
 		'turnRoll',
 		'path',
-		'eliminatedPlayers'
+		'eliminatedPlayers',
+		'events'
 	],
 	#category : 'DynamicGame',
 	#package : 'DynamicGame'
@@ -33,11 +34,22 @@ Turn class >> number: aNumber player: aPlayer roll: aValue [
 		yourself.
 ]
 
+{ #category : 'printing' }
+Turn >> addCollisionWith: aPlayerName [
+    events add: '💥 Choca a ', aPlayerName
+]
+
 { #category : 'actions' }
 Turn >> addElimination: aPlayer [
 	"registra el jugador eliminado durante este turno"
 	eliminatedPlayers add: aPlayer.
 
+]
+
+{ #category : 'actions' }
+Turn >> addEvent: aString [
+	"Registra un evento de texto en el historial del turno"
+	events add: aString
 ]
 
 { #category : 'actions' }
@@ -66,6 +78,12 @@ Turn >> endPosition [
 	^ nil
 ]
 
+{ #category : 'accessing' }
+Turn >> events [
+
+	^ events
+]
+
 { #category : 'testing' }
 Turn >> hasEliminations [
 	^ eliminatedPlayers isNotEmpty 
@@ -75,6 +93,7 @@ Turn >> hasEliminations [
 Turn >> initialize [ 
 	super initialize.
 	path := OrderedCollection new.
+	events := OrderedCollection new.
 	eliminatedPlayers := OrderedCollection new.
 	
 ]

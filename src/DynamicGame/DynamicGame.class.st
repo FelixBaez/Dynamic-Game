@@ -301,8 +301,9 @@ DynamicGame >> rng: anObject [
 	rng := anObject
 ]
 
-{ #category : 'visualization' }
+{ #category : 'running' }
 DynamicGame >> runGame [
+	"Abre la interfaz gráfica para esta instancia del juego"
 	^ DynamicGameUI openOn: self
 ]
 
