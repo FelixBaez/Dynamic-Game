@@ -1,3 +1,6 @@
+"
+DynamicGameUI modela la interfaz visual del juego.
+"
 Class {
 	#name : 'DynamicGameUI',
 	#superclass : 'SpPresenter',
@@ -218,8 +221,7 @@ DynamicGameUI >> updateView [
 	
 	"1. Obtener nombre del jugador actual (Protegido contra errores)"
 	currPlayerName := [ game currentPlayer name ] 
-		on: Error 
-		do: [ '---' ].
+		on: Error do: [ '---' ].
 
 	"2. Actualizar etiquetas con texto simple"
 	statusLabel label: 'Turno: ', game turnNumber asString, ' - Juega: ', currPlayerName.
