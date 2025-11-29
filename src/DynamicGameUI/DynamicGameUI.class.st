@@ -14,6 +14,15 @@ Class {
 	#package : 'DynamicGameUI'
 }
 
+{ #category : 'instance creation' }
+DynamicGameUI class >> openOn: aGameModel [
+	| window |
+	window := self new.
+	window setModel: aGameModel.
+	window open.
+	^ window
+]
+
 { #category : 'initialization' }
 DynamicGameUI >> defaultLayout [
 	^ SpBoxLayout newHorizontal
@@ -194,6 +203,12 @@ DynamicGameUI >> initializeWindow: aWindowPresenter [
 	super initializeWindow: aWindowPresenter.
 	aWindowPresenter title: 'Juego Repulsor | G14'; initialExtent: 750@500.
 	
+]
+
+{ #category : 'initialization' }
+DynamicGameUI >> setModel: aGame [
+	game:= aGame.
+	self updateView.
 ]
 
 { #category : 'updating' }

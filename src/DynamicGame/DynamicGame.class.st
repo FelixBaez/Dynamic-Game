@@ -301,6 +301,11 @@ DynamicGame >> rng: anObject [
 	rng := anObject
 ]
 
+{ #category : 'visualization' }
+DynamicGame >> runGame [
+	^ DynamicGameUI openOn: self
+]
+
 { #category : 'running' }
 DynamicGame >> runVisualDemo [
 	"Ejecuta el juego completo reportando al Transcript paso a paso"
