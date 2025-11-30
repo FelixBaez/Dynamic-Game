@@ -13,7 +13,8 @@ Class {
 		'historyList',
 		'winnerLabel',
 		'turnsLeftLabel',
-		'diceIcon'
+		'diceIcon',
+		'legendPanel'
 	],
 	#category : 'DynamicGameUI',
 	#package : 'DynamicGameUI'
@@ -28,26 +29,43 @@ DynamicGameUI class >> openOn: aGameModel [
 	^ window
 ]
 
+{ #category : 'private' }
+DynamicGameUI >> createColorForm: aColor [
+	"Crea un cuadrado de 15x15 del color especificado"
+	| form canvas |
+	form := Form extent: 15@15 depth: 32.
+	canvas := form getCanvas.
+	canvas fillRectangle: (0@0 extent: 15@15) color: aColor.
+	canvas frameRectangle: (0@0 extent: 15@15) color: Color black.
+	^ form
+]
+
 { #category : 'initialization' }
 DynamicGameUI >> defaultLayout [
-	^ SpBoxLayout newHorizontal
-		"Panel Izquierdo: El tablero se expande para ocupar el espacio"
-		add: boardPresenter expand: true;
-		"Panel Derecho: Una columna vertical con ancho fijo"
-		add: (SpBoxLayout newVertical
-				add: turnsLeftLabel height: 30;  "Nuevo indicador"
-         add: statusLabel height: 60;
-				add: statusLabel height: 60;
-				add: lastRollLabel height: 30;
-				add: turnButton height: 60; "Botón grande como en el mockup"
-				add: (self newLabel label: 'Historial:') height: 20;
-				add: historyList; "El resto del espacio para el historial"
-				"--- NUEVO: Agregamos el label abajo con altura fija ---"
-             add: winnerLabel height: 50;
-				spacing: 10; "Espacio entre elementos verticales"
-				yourself)
-		width: 250; "Ancho fijo para el panel derecho"
-		spacing: 5; "Espacio entre los dos paneles principales"
+	| rightPanel |
+	
+	rightPanel := SpBoxLayout newVertical
+					add: turnsLeftLabel height: 30;
+					add: statusLabel height: 60;
+					add: lastRollLabel height: 30;
+					add: turnButton height: 60;
+					add: (self newLabel label: 'Historial:') height: 20;
+					add: historyList; 
+					add: winnerLabel height: 50;
+					spacing: 10;
+					yourself.
+
+	^ SpBoxLayout newVertical
+		spacing: 5;
+		"Agregamos la leyenda arriba con altura fija"
+		add: legendPanel height: 30; 
+		
+		"El resto es tu layout Paned original"
+		add: (SpPanedLayout newHorizontal
+				positionOfSlider: 0.65;
+				add: boardPresenter;
+				add: rightPanel;
+				yourself);
 		yourself
 ]
 
@@ -202,47 +220,59 @@ DynamicGameUI >> drawBoardOn: aCanvas [
 { #category : 'initialization' }
 DynamicGameUI >> initializePresenters [
 	| players seed |
-    "----MODELO----"
-    game := DynamicGame new.
-	seed := 123456.
-	players := {
-    (Player name: 'Ana' color: Color red).
-    (Player name: 'Beto' color: Color blue).
-    } asOrderedCollection.
+	
+	game ifNil: [ 
+		seed := 123456.
+		players := { (Player name: 'Default1' color: Color red). (Player name: 'Default2' color: Color blue) } asOrderedCollection.
+		game := DynamicGame new startWith: players seed: seed maxTurns: 20.
+		game placeAllPlayersRandomly.
+	].
 
-    game := DynamicGame new
-    startWith: players seed: seed maxTurns: 20.
-    game placeAllPlayersRandomly.
+	"Inicializamos el panel VACÍO"
+	legendPanel := SpBoxLayout newHorizontal spacing: 10.
+
+	self rebuildLegend.
 	
-   "-----VISTA----"
-	diceIcon := (FileSystem workingDirectory / 'dice.png') exists 
-        ifTrue: [ (ImageReadWriter formFromFileNamed: 'dice.png') scaledToSize: 50@50 ]
-        ifFalse: [ self iconNamed: #objects ].
-	
-	"Área del tablero (Roassal)"
+	game players do: [ :p |
+		| playerBox icon image |
+		icon := self createColorForm: p color.
+		image := self newImage image: icon.
+		
+		playerBox := SpBoxLayout newHorizontal.
+		playerBox spacing: 5.
+		playerBox add: image width: 15.
+		playerBox add: (self newLabel label: p name) expand: false.
+		
+		legendPanel add: playerBox expand: false.
+	].
+	legendPanel add: SpBoxLayout newHorizontal. 
+
+	"TABLERO (Roassal)"
 	boardPresenter := self instantiate: SpRoassalPresenter.
-	"Le decimos que use nuestro método de dibujo personalizado"
 	boardPresenter script: [ :canvas | self drawBoardOn: canvas ].
 
-	"Panel derecho"
+	"ETIQUETAS E INFORMACIÓN"
+	turnsLeftLabel := self newLabel.
 	statusLabel := self newLabel.
 	lastRollLabel := self newLabel.
-	turnsLeftLabel := self newLabel.
-	
-	winnerLabel := self newLabel.
-	
-	"Botón de tirar dado"
-	 turnButton := self newButton
+	winnerLabel := self newLabel. 
+
+	"BOTÓN DE DADO"
+
+	diceIcon := (FileSystem workingDirectory / 'dice.png') exists 
+		ifTrue: [ (ImageReadWriter formFromFileNamed: 'dice.png') scaledToSize: 50@50 ]
+		ifFalse: [ self iconNamed: #objects ].
+
+	turnButton := self newButton
 		label: 'TIRAR DADO';
 		icon: diceIcon;
-		action: [ self doPlayTurn ]. "Conectamos el clic con el método de acción"
+		action: [ self doPlayTurn ].
 
-historyList := self newList.
+	"HISTORIAL"
+	historyList := self newList.
 	historyList display: [ :turn | 
 		| destinoTexto textoEventos |
 		
-		"--- CORRECCIÓN DE VISUALIZACIÓN ---"
-		"Si hubo eliminaciones, tiene prioridad sobre la posición"
 		turn hasEliminations 
 			ifTrue: [ destinoTexto := 'ELIMINADO ☠️' ]
 			ifFalse: [ 
@@ -250,8 +280,8 @@ historyList := self newList.
 					ifNil: [ '-' ] 
 					ifNotNil: [ turn endPosition asString ] 
 			].
-		"-----------------------------------"
 			
+		"Concatenamos eventos (choques, salidas)"
 		textoEventos := ''.
 		turn events do: [ :ev | textoEventos := textoEventos, ' [', ev, ']' ].
 		
@@ -261,8 +291,8 @@ historyList := self newList.
 		textoEventos, 
 		' -> ', destinoTexto
 	].
-	
-	"Actualizamos la vista por primera vez para mostrar el estado inicial"
+
+	"ACTUALIZACIÓN INICIAL"
 	self updateView.
 ]
 
@@ -273,9 +303,35 @@ DynamicGameUI >> initializeWindow: aWindowPresenter [
 	
 ]
 
+{ #category : 'private' }
+DynamicGameUI >> rebuildLegend [
+	"Limpia el panel de leyenda y vuelve a crear los iconos según los jugadores actuales"
+	
+	"Limpiamos lo que había antes"
+	legendPanel removeAll. 
+	
+	"Generamos los nuevos iconos para los jugadores del juego real"
+	game players do: [ :p |
+		| playerBox icon image |
+		icon := self createColorForm: p color.
+		image := self newImage image: icon.
+		
+		playerBox := SpBoxLayout newHorizontal.
+		playerBox spacing: 5.
+		playerBox add: image width: 15.
+		playerBox add: (self newLabel label: p name) expand: false.
+		
+		legendPanel add: playerBox expand: false.
+	].
+
+	"Relleno final para alineación"
+	legendPanel add: SpBoxLayout newHorizontal.
+]
+
 { #category : 'initialization' }
 DynamicGameUI >> setModel: aGame [
 	game:= aGame.
+	self rebuildLegend.
 	self updateView.
 ]
 
