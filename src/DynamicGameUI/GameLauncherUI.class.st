@@ -79,7 +79,7 @@ GameLauncherUI >> defaultLayout [
 				spacing: 5;
 				add: nameInput;
 				add: colorDropList width: 100;
-				add: addButton width: 130;
+				add: addButton width: 160;
 				yourself) 
 			height: 30;
 		add: (self newLabel label: 'Lista de Jugadores:') height: 20;
@@ -122,4 +122,10 @@ GameLauncherUI >> initializePresenters [
 	startButton := self newButton label: 'INICIAR JUEGO'; icon: (self iconNamed: #smallDoIt).
 	
 	self connectPresenters.
+]
+
+{ #category : 'initialization' }
+GameLauncherUI >> initializeWindow: aWindowPresenter [
+	super initializeWindow: aWindowPresenter.
+	aWindowPresenter title: 'INGRESE JUGADORES'; initialExtent: 750@600.
 ]

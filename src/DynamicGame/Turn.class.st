@@ -24,7 +24,7 @@ Class {
 	#package : 'DynamicGame'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'initialization' }
 Turn class >> number: aNumber player: aPlayer roll: aValue [
 	"Crea turno y asigna valores"
 	^ self new
